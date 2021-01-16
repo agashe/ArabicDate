@@ -18,6 +18,11 @@ class ArabicDate
     private $language;
     private $calendar;
 
+    /**
+     * Constructor
+     * 
+     * @return void
+     */
     public function __construct(string $format = null, 
         string $language = null, string $calendar = null)
     {
@@ -26,6 +31,12 @@ class ArabicDate
         $this->calendar = ($calendar)? $this->setCalendar($calendar) : 'hijri';
     }
 
+    /**
+     * Set the format pattern for "date" method
+     * 
+     * @param string $format
+     * @return void
+     */
     public function setFormat(string $format = null)
     {
         $allowedCharacters = [
@@ -46,6 +57,12 @@ class ArabicDate
         $this->format = $format;
     }
     
+    /**
+     * Set the language for the output
+     * 
+     * @param string $language
+     * @return void
+     */
     public function setLanguage(string $language = null)
     {
         $availableLanguages = ['arabic', 'english'];
@@ -57,6 +74,12 @@ class ArabicDate
         }
     }
     
+    /**
+     * Set the calendar hijri/gregorian
+     * 
+     * @param string $calendar
+     * @return void
+     */
     public function setCalendar(string $calendar = null)
     {
         $availableCalendars = ['hijri', 'gregorian'];
@@ -68,8 +91,53 @@ class ArabicDate
         }
     }
 
+    /**
+     * Convert the current date into hijri
+     * 
+     * @return array
+     */
+    private function gregorianToHijri()
+    {
+        
+    }
+
+    /**
+     * Generate the desired date based on the provided parameters 
+     * 
+     * @return string 
+     */
     public function get()
     {
-        print 'good';
+        /** Define arabic/english months and days names **/
+        $arabicDays = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+        $arabicGregorianMonths = [
+            'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+        ];
+        
+        $arabicHijriMonths = [
+            'محرم', 'صفر', 'ربيع الأول', 'ربيع الثاني', 'جماد الأول', 'جماد الثاني'
+            , 'رجب', 'شعبان', 'رمضان', 'شوال', 'ذو القعدة', 'ذو الحجة'
+        ];
+        
+        $englishHijriMonths = [
+            'Muharram', 'Safar', 'Rabi-Al-Awwal', 
+            'Rabi-Al-Thani', 'Jumada-Al-Awwal', 'Jumada-Al-Thani', 
+            'Rajab', 'Shaban', 'Ramadan', 
+            'Shawwal', 'Zul-Qa’dah', 'Zul-Hijjah'
+        ];
+        
+        /** Generate Date **/
+        $nowGregorian = date($this->format);
+
+        /** Convert Date **/
+        $nowHijri = '';
+
+        /** Baset on the calendar & language return the output **/
+        if ($this->language === 'arabic') {
+            
+        }
+        elseif ($this->language === 'english') {
+
+        }
     }
 }
