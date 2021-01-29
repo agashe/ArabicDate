@@ -26,9 +26,9 @@ class ArabicDate
     public function __construct(string $format = null, 
         string $language = null, string $calendar = null)
     {
-        $this->format   = ($format)? $this->setFormat($format) : 'd/m/Y H:i:s a';
-        $this->language = ($language)? $this->setLanguage($language) : 'arabic';
-        $this->calendar = ($calendar)? $this->setCalendar($calendar) : 'hijri';
+        ($format)? $this->setFormat($format) : 'd/m/Y H:i:s a';
+        ($language)? $this->setLanguage($language) : 'arabic';
+        ($calendar)? $this->setCalendar($calendar) : 'hijri';
     }
 
     /**
@@ -50,7 +50,7 @@ class ArabicDate
         foreach (str_split($format) as $char) {
             if (!in_array($char, $allowedCharacters)) {
                 throw new \Exception("ArabicDate Error: Invalid Format");
-                break;
+                return;
             }
         }
         
@@ -189,7 +189,7 @@ class ArabicDate
             'Rajab', 'Shaban', 'Ramadan', 
             'Shawwal', 'Zul-Qa’dah', 'Zul-Hijjah'
         ];
-        
+        var_dump($englishHijriMonths);
         /** Generate Date **/
         $nowGregorian = date($this->format);
 
@@ -201,7 +201,12 @@ class ArabicDate
             
         }
         elseif ($this->language === 'english') {
+            if ($this->calendar == 'gregorian') {
+                return $nowGregorian;
+            }
+            elseif ($this->calendar == 'hijri') {
 
+            }
         }
     }
 }
