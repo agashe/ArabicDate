@@ -154,15 +154,15 @@ class ArabicDate
         
         $id = $z - floor((29.5001 * $im) - 29);
 
-        $myRes = [];
-        $myRes[0] = $day;
-        $myRes[1] = $month;
-        $myRes[2] = $year;
-        $myRes[4] = $id;
-        $myRes[5] = $im;
-        $myRes[6] = $iy;
+        return [
+            'g_day'   => $day,
+            'g_month' => $month,
+            'g_year'  => $year,
 
-        return $myRes;
+            'h_day'   => $id,
+            'h_month' => $im,
+            'h_year'  => $iy,
+        ];
     }
 
     /**
@@ -195,7 +195,7 @@ class ArabicDate
 
         /** Convert Date **/
         $nowHijri = $this->gregorianToHijri();
-
+        
         /** Baset on the calendar & language return the output **/
         if ($this->language === 'arabic') {
             
