@@ -39,19 +39,9 @@ class ArabicDate
      */
     public function setFormat(string $format = null)
     {
-        $allowedCharacters = [
-            'd', 'D', 'm',
-            'M', 'n', 'y', 
-            'Y', 'h', 'H', 
-            'i', 's', ':',
-            '/', '_', '-'
-        ];
-
-        foreach (str_split($format) as $char) {
-            if (!in_array($char, $allowedCharacters)) {
-                throw new \Exception("ArabicDate Error: Invalid Format");
-                return;
-            }
+        if (!is_string($format)) {
+            throw new \Exception("ArabicDate Error: Invalid Format");
+            return;
         }
         
         $this->format = $format;
@@ -172,8 +162,19 @@ class ArabicDate
      */
     public function get()
     {
-        /** Define arabic/english months and days names **/
+        /** Define allowed characters (for hijri !!) **/
+        $allowedHijriFormatCharacters = [
+            'd', 'D', 'j',
+            'm', 'M', 'n',
+            'y', 'Y', 'h',
+            'H', 'i', 's',
+            'a', 'A'
+        ];
+
+        /** Define arabic/english digits , months and days names **/
+        $arabicDigits = ['٠', '١', '٢', '٣' , '٤' , '٥', '٦', '٧' , '٨' , '٩'];
         $arabicDays = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+        
         $arabicGregorianMonths = [
             'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
         ];
@@ -182,14 +183,30 @@ class ArabicDate
             'محرم', 'صفر', 'ربيع الأول', 'ربيع الثاني', 'جماد الأول', 'جماد الثاني'
             , 'رجب', 'شعبان', 'رمضان', 'شوال', 'ذو القعدة', 'ذو الحجة'
         ];
+
+        $arabicAmAndPm = [
+            'am' => 'صباحاً', 'AM' => 'صباحاً',
+            'pm' => 'مساءً', 'PM' => 'مساءً',
+        ];
         
+        $nameOfDaysInArabic = [
+            'Al-Ithnayn', 'Ath-Thulathaa', 'Al-Arbi\'aa', 
+            'Al-Khamees', 'Al-Jumu\'ah', 'As-Sabt',
+            'Al-Ahad'
+        ];
+
         $englishHijriMonths = [
             'Muharram', 'Safar', 'Rabi-Al-Awwal', 
             'Rabi-Al-Thani', 'Jumada-Al-Awwal', 'Jumada-Al-Thani', 
             'Rajab', 'Shaban', 'Ramadan', 
             'Shawwal', 'Zul-Qa’dah', 'Zul-Hijjah'
         ];
-        var_dump($englishHijriMonths);
+
+        $namesOfAmAndPmInArabic = [
+            'am' => 'Sabahaan', 'AM' => 'Sabahaan',
+            'pm' => 'Masa', 'PM' => 'Masa',
+        ];
+
         /** Generate Date **/
         $nowGregorian = date($this->format);
 
@@ -197,16 +214,52 @@ class ArabicDate
         $nowHijri = $this->gregorianToHijri();
         
         /** Baset on the calendar & language return the output **/
+        $output = '';
+        
         if ($this->language === 'arabic') {
             
         }
         elseif ($this->language === 'english') {
             if ($this->calendar == 'gregorian') {
-                return $nowGregorian;
+                $output = $nowGregorian;
             }
             elseif ($this->calendar == 'hijri') {
+                foreach (str_split($this->format) as $char) {
+                    // Day
+                    if ($char == 'd') 
+                        $output .= ($nowHijri['h_day'] < 10)? ('0'.$nowHijri['h_day']) : $nowHijri['h_day'];
+                    elseif ($char == 'D')
+                        $output .= $nameOfDaysInArabic[date('N') - 1];
+                    elseif ($char == 'j') 
+                        $output .= $nowHijri['h_day'];
+                    
+                    // Month
+                    elseif ($char == 'm') 
+                        $output .= ($nowHijri['h_month'] < 10)? ('0'.$nowHijri['h_month']) : $nowHijri['h_month'];
+                    elseif ($char == 'M')
+                        $output .= $englishHijriMonths[$nowHijri['h_month'] - 1];
+                    elseif ($char == 'n') 
+                        $output .= $nowHijri['h_month'];
+                    
+                    // Year
+                    elseif ($char == 'y') 
+                        $output .= substr($nowHijri['h_year'], -2);
+                    elseif ($char == 'Y') 
+                        $output .= $nowHijri['h_year'];
+                    
+                    // Time
+                    elseif ($char == 'a') 
+                        $output .= $namesOfAmAndPmInArabic[date('a')];
+                    elseif ($char == 'A') 
+                        $output .= $namesOfAmAndPmInArabic[date('A')];
 
+                    // Anything else ...
+                    else 
+                        $output .= $char;
+                }
             }
         }
+
+        return $output;
     }
 }
