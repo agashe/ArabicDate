@@ -156,27 +156,46 @@ class ArabicDate
     }
 
     /**
+     * Convert english digits to arabic
+     * 
+     * @param string $digits
+     * @return string 
+     */
+    private function convertDigit($digits)
+    {
+        $arabicDigits = [
+            '٠', '١', '٢', '٣' , '٤' , '٥', '٦', '٧' , '٨' , '٩'
+        ];
+
+        $result = '';
+        foreach (str_split($digits) as $digit) 
+            $result .= $arabicDigits[$digit];
+
+        return $result;
+    }
+
+    /**
      * Generate the desired date based on the provided parameters 
      * 
      * @return string 
      */
     public function get()
     {
-        /** Define allowed characters (for hijri !!) **/
-        $allowedHijriFormatCharacters = [
-            'd', 'D', 'j',
-            'm', 'M', 'n',
-            'y', 'Y', 'h',
-            'H', 'i', 's',
-            'a', 'A'
-        ];
+        /**
+         * Allowed characters (for hijri !!)
+         * 
+         * Days: d , D , j
+         * Months: m , M , n
+         * Years: y , Y
+         * Time: h , H , i , s , a , A
+         */
 
         /** Define arabic/english digits , months and days names **/
-        $arabicDigits = ['٠', '١', '٢', '٣' , '٤' , '٥', '٦', '٧' , '٨' , '٩'];
-        $arabicDays = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
-        
+        $arabicDays = ['الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'الأحد'];
+
         $arabicGregorianMonths = [
-            'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+            'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+            'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
         ];
         
         $arabicHijriMonths = [
@@ -215,9 +234,75 @@ class ArabicDate
         
         /** Baset on the calendar & language return the output **/
         $output = '';
-        
+
         if ($this->language === 'arabic') {
-            
+            if ($this->calendar == 'gregorian') {
+                foreach (str_split($this->format) as $char) {
+                    // Time, Day , Month and Year (numeric)
+                    if ($char == 'd' || $char == 'j' || $char == 'm' || 
+                        $char == 'n' || $char == 'y' || $char == 'Y' ||
+                        $char == 'h' || $char == 'H' || $char == 'i' || 
+                        $char == 's') 
+                        $output .= $this->convertDigit(date($char));
+                    
+                    // Day (textual) 
+                    elseif ($char == 'D')
+                        $output .= $arabicDays[date('N') - 1];
+                    
+                    // Month (textual)
+                    elseif ($char == 'M')
+                        $output .= $arabicGregorianMonths[date('n') - 1];
+                    
+                    // AM & PM
+                    elseif ($char == 'a' || $char == 'A')
+                        $output .= $arabicAmAndPm[date($char)];
+
+                    // Anything else ...
+                    else 
+                        $output .= $char;
+                }
+            }
+            elseif ($this->calendar == 'hijri') {
+                foreach (str_split($this->format) as $char) {
+                    // Day
+                    if ($char == 'd') 
+                        $output .= $this->convertDigit(
+                            ($nowHijri['h_day'] < 10)? ('0'.$nowHijri['h_day']) : $nowHijri['h_day']
+                        );
+                    elseif ($char == 'D')
+                        $output .= $arabicDays[date('N') - 1];
+                    elseif ($char == 'j') 
+                        $output .= $this->convertDigit($nowHijri['h_day']);
+                    
+                    // Month
+                    elseif ($char == 'm') 
+                        $output .= $this->convertDigit(
+                            ($nowHijri['h_month'] < 10)? ('0'.$nowHijri['h_month']) : $nowHijri['h_month']
+                        );
+                    elseif ($char == 'M')
+                        $output .= $arabicHijriMonths[$nowHijri['h_month'] - 1];
+                    elseif ($char == 'n') 
+                        $output .= $this->convertDigit($nowHijri['h_month']);
+                    
+                    // Year
+                    elseif ($char == 'y') 
+                        $output .= $this->convertDigit(substr($nowHijri['h_year'], -2));
+                    elseif ($char == 'Y') 
+                        $output .= $this->convertDigit($nowHijri['h_year']);
+                    
+                    // Time
+                    elseif ($char == 'h' || $char == 'H' || $char == 'i' || $char == 's') 
+                        $output .= $this->convertDigit(date($char));
+                    
+                    // AM & PM
+                    elseif ($char == 'a' || $char == 'A') 
+                        $output .= $arabicAmAndPm[date($char)];
+
+                    // Anything else ...
+                    else 
+                        $output .= $char;
+                }
+            }
         }
         elseif ($this->language === 'english') {
             if ($this->calendar == 'gregorian') {
@@ -247,11 +332,9 @@ class ArabicDate
                     elseif ($char == 'Y') 
                         $output .= $nowHijri['h_year'];
                     
-                    // Time
-                    elseif ($char == 'a') 
-                        $output .= $namesOfAmAndPmInArabic[date('a')];
-                    elseif ($char == 'A') 
-                        $output .= $namesOfAmAndPmInArabic[date('A')];
+                    // AM & PM
+                    elseif ($char == 'a' || $char == 'A') 
+                        $output .= $namesOfAmAndPmInArabic[date($char)];
 
                     // Anything else ...
                     else 
