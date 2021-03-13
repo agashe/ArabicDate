@@ -142,7 +142,14 @@ class ArabicDate
         $im = floor(($z + 28.5001) / 29.5);
         if ($im == 13) $im = 12;
         
-        $id = $z - floor((29.5001 * $im) - 29);
+        /**
+         * check number of days in february
+         * to correct the islamic day 
+         * (there's no official docs , so i created solution!)
+         */
+        $februaryDays = cal_days_in_month(CAL_GREGORIAN, 2, date('Y'));
+        
+        $id = $z - floor((29.5001 * $im) - $februaryDays);
 
         return [
             'g_day'   => $day,
@@ -338,7 +345,7 @@ class ArabicDate
 
                     // Anything else ...
                     else 
-                        $output .= $char;
+                        $output .= date($char);
                 }
             }
         }
