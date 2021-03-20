@@ -142,7 +142,14 @@ class ArabicDate
         $im = floor(($z + 28.5001) / 29.5);
         if ($im == 13) $im = 12;
         
-        $id = $z - floor((29.5001 * $im) - 29);
+        /**
+         * check number of days in hijri month
+         * to correct the islamic day 
+         * (there's no official docs , so i created solution!)
+         */
+        $monthDays = (($im % 2) == 0)? 29 : 28;
+
+        $id = $z - floor((29.5001 * $im) - $monthDays);
 
         return [
             'g_day'   => $day,
