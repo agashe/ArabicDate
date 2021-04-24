@@ -49,8 +49,7 @@ supported characters in hijri calendar.
 |        H         | 24-hour format of an hour with leading zeros             |
 |        i         | Minutes with leading zeros                               |
 |        s         | Seconds with leading zeros                               |
-|       a/A        | AM/PM , but in arabic there's no lowercase and uppercase |
-|                  | so they both are the same!                               |
+|       a/A        | AM/PM , but in arabic there's no lowercase and uppercase <br> so they both are the same! |
 
 This is the basic example for using ArabicDate
 
